@@ -27,3 +27,29 @@ output_data = {
 with open("combined_data.json", "w") as f:
     json.dump(output_data, f)
 -----------------------------------------------------------------------------------------------------------
+#To plot the pie chart for types of payment via Phonepe
+import json
+import matplotlib.pyplot as plt
+
+with open('combined_data.json') as f:
+    data = json.load(f)
+
+transaction_data = data['data']['transactionData']
+
+transaction_count = {}
+
+for transaction in transaction_data:
+    name = transaction['name']
+    count = transaction['paymentInstruments'][0]['count']
+    if name in transaction_count:
+        transaction_count[name] += count
+    else:
+        transaction_count[name] = count
+
+labels = list(transaction_count.keys())
+values = list(transaction_count.values())
+plt.pie(values, labels=labels, autopct='%1.1f%%')
+plt.title('Types of Payment via PhonePe in the year 2018')
+plt.figure(figsize=(10,10))
+plt.show()
+
