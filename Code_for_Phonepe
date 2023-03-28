@@ -1,0 +1,29 @@
+#To convert multiple json file into single one
+
+import os
+import json
+
+data = []
+
+for file_name in os.listdir("D:/Phonepe project/pulse/data/aggregated/transaction/country/india/2018"):
+    if file_name.endswith(".json"):
+        with open(os.path.join("D:/Phonepe project/pulse/data/aggregated/transaction/country/india/2018", file_name)) as f:
+            
+            json_data = json.load(f)
+        
+            data.extend(json_data["data"]["transactionData"])
+
+output_data = {
+    "success": True,
+    "code": "SUCCESS",
+    "data": {
+        "from": 0,
+        "to": 0,
+        "transactionData": data
+    },
+    "responseTimestamp": 0
+}
+
+with open("combined_data.json", "w") as f:
+    json.dump(output_data, f)
+-----------------------------------------------------------------------------------------------------------
