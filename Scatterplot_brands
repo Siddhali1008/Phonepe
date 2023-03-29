@@ -5,33 +5,31 @@ Here not only you merge the two files but also add the data of similar propertie
 import os 
 import json 
 
-# initialize an empty dictionary to store the counts for each device brand
 device_counts = {}
 
-# iterate over each JSON file in the directory
 for file_name in os.listdir("D:/GIT/pulse/data/aggregated/user/country/india/2018"):
 
     if file_name.endswith(".json"): 
 
         with open(os.path.join("D:/GIT/pulse/data/aggregated/user/country/india/2018", file_name)) as f:
 
-            # load the data from the file 
+           
             json_data = json.load(f) 
 
-            # iterate over each device brand in the "usersByDevice" list
+            
             for device in json_data["data"]["usersByDevice"]:
                 
-                # if the device brand is already in the dictionary, add its count to the existing count
+             
                 if device["brand"] in device_counts:
                     device_counts[device["brand"]] += device["count"]
-                # otherwise, add the device brand and its count to the dictionary
+               
                 else:
                     device_counts[device["brand"]] = device["count"]
 
-# convert the dictionary to a list of dictionaries with the same format as the original "usersByDevice" list
+
 data = [{"brand": k, "count": v, "percentage": 0} for k, v in device_counts.items()]
 
-# create a new dictionary with the combined data and write it to a new JSON file 
+
 output_data = { 
     "success": True, 
     "code": "SUCCESS", 
@@ -58,29 +56,26 @@ Code for scatterplot
 import matplotlib.pyplot as plt
 import json
 
-# Load the data from the JSON file
+
 with open('mergeddata.json', 'r') as f:
     data = json.load(f)['data']['usersByDevice']
 
-# Extract the brand names and user counts
+
 brands = [d['brand'] for d in data]
 users = [d['count'] for d in data]
 
-# Set the x-axis label and limits
+
 plt.xlabel('Brand')
 plt.xlim((-0.5, len(brands) - 0.5))
 
-# Set the y-axis label and limits
+
 plt.ylabel('Registered Users')
 plt.ylim((0, max(users) * 1.1))
 
-# Create a scatter plot with bubble size proportional to the number of registered users
 plt.scatter(range(len(brands)), users, s=[u/1000000 for u in users], alpha=0.5)
 
-# Set the x-tick labels to the brand names
 plt.xticks(range(len(brands)), brands, rotation=90)
 
-# Show the plot
 plt.show()
 
 
