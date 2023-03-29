@@ -1,0 +1,87 @@
+#To merge multiple json files and adding the count of similar entites 
+
+import os
+import json
+
+# specify directory where JSON files are located
+directory = 'C:/Users/siddhali_shah/Downloads/combinedstatedata'
+
+# create dictionary to store state-wise registered users data
+state_data = {}
+
+# loop through each file in directory
+for filename in os.listdir(directory):
+    if filename.endswith('.json'):
+        # open and load JSON file
+        with open(os.path.join(directory, filename)) as file:
+            data = json.load(file)
+        
+        # loop through each state in the file
+        for state in data['data']['states']:
+            state_name = state['name'].lower()
+            registered_users = state['registeredUsers']
+            
+            # add registered users to dictionary if state already exists
+            if state_name in state_data:
+                state_data[state_name] += registered_users
+            # create new key if state doesn't exist
+            else:
+                state_data[state_name] = registered_users
+
+# create list of state dictionaries for output JSON file
+output_states = []
+for state, registered_users in state_data.items():
+    output_states.append({'name': state, 'registeredUsers': registered_users})
+
+# create output JSON dictionary and save to file
+output_data = {'success': True, 'code': 'SUCCESS', 'data': {'states': output_states, 'districts': []}}
+with open('finaloutput.json', 'w') as file:
+    json.dump(output_data, file, indent=4)
+-------------------------------------------------------------------------------------------------------------------------------------------
+#To plot a geography map
+
+import json
+import folium
+from branca.colormap import LinearColormap
+
+# Load the GeoJSON data
+with open('india_state.geojson') as f:
+    geojson_data = json.load(f)
+
+# Load the state data
+with open('finaloutput.json') as f:
+    state_data = json.load(f)['data']['states']
+
+# Create a dictionary with state names and registered users
+state_dict = {state['name'].title(): state['registeredUsers'] for state in state_data}
+
+# Join the state data with the GeoJSON data
+for feature in geojson_data['features']:
+    state_name = feature['properties']['NAME_1'].title()
+    feature['properties']['registeredUsers'] = state_dict.get(state_name, 0)
+
+# Create a color map based on the registered users
+registered_users = [state_dict.get(feature['properties']['NAME_1'].title(), 0) for feature in geojson_data['features']]
+color_map = LinearColormap(['green', 'yellow', 'red'], vmin=min(registered_users), vmax=max(registered_users))
+
+# Create a Folium map
+m = folium.Map(location=[20.5937, 78.9629], zoom_start=4)
+
+# Add GeoJson layer to the map
+folium.GeoJson(
+    geojson_data,
+    name='choropleth',
+    style_function=lambda x: {'fillColor': color_map(x['properties']['registeredUsers']), 'fillOpacity': 0.7, 'color': 'black', 'weight': 0.2},
+    tooltip=folium.GeoJsonTooltip(
+        fields=['NAME_1', 'registeredUsers'],
+        aliases=['State', 'Registered Users'],
+        style=('background-color: grey; color: white; font-family: arial; font-size: 12px; padding: 10px;')
+    ),
+    highlight_function=lambda x: {'weight': 3, 'fillOpacity': 0.5},
+).add_to(m)
+
+# Add layer control to the map
+folium.LayerControl().add_to(m)
+
+# Display the map
+m
