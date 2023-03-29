@@ -1,0 +1,85 @@
+# To merge multiple json files into a single one
+
+import os 
+import json 
+data = { 
+
+    "success": True, 
+
+    "code": "SUCCESS", 
+
+    "data": { 
+
+        "states": [], 
+
+        "districts": [], 
+
+        "pincodes": [] 
+
+    }, 
+
+    "responseTimestamp": 1630501482414 
+
+} 
+
+
+for file_name in os.listdir("D:/Phonepe project/pulse/data/top/user/country/india/2018"): 
+
+    if file_name.endswith(".json"): 
+
+        with open(os.path.join("D:/Phonepe project/pulse/data/top/user/country/india/2018", file_name)) as f: 
+
+
+
+            json_data = json.load(f) 
+
+            # Append
+
+            data["data"]["states"].extend(json_data["data"]["states"]) 
+
+            data["data"]["districts"].extend(json_data["data"]["districts"]) 
+
+            data["data"]["pincodes"].extend(json_data["data"]["pincodes"]) 
+
+
+with open("statedata1.json", "w") as f: 
+    json.dump(data, f) 
+    ---------------------------------------------------------------------------------------------------------------------------------------
+    
+    # To plot a bar graph
+    
+    import json 
+
+import matplotlib.pyplot as plt 
+
+
+with open('statedata1.json', 'r') as f: 
+
+    data = json.load(f) 
+
+
+
+states = sorted(data['data']['states'], key=lambda x: x['registeredUsers'], reverse=True)[:10] 
+
+
+state_names = [state['name'].upper() for state in states] 
+
+  
+registered_users = [state['registeredUsers'] for state in states] 
+
+  
+plt.figure(figsize=(8,8)) 
+
+plt.bar(state_names, registered_users) 
+
+
+
+plt.title('Top 5 States for Registered Users in 2018') 
+
+plt.xlabel('State'.upper()) 
+
+plt.ylabel('Number of Registered Users') 
+
+plt.show() 
+
+ 
